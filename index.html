@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>噬菌体侵染实验 · 互动教具</title>
+<style>
+:root{
+  --bg:#0a141e;
+  --card:#162b3e;
+  --gold:#f5b042;
+  --gold-dark:#8b5a1a;
+  --green:#5f9f4b;
+  --red:#b33b3b;
+  --blue:#4a7fb5;
+  --blue-dark:#1e3a52;
+  --purple:#9b59b6;
+  --purple-dark:#7d3c98;
+  --text:#f0f4fa;
+  --text-dim:#a8c8e0;
+  --line:#2a4058;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;font-size:28px;
+  padding:16px;overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;
+}
+.app{
+  max-width:1500px;margin:0 auto;
+  background:#0e1a26;border-radius:40px;
+  border:3px solid #3e5a7a;
+  box-shadow:0 30px 50px rgba(0,0,0,.8);
+  padding:24px 32px 36px;
+}
+
+/* ===== 顶栏 ===== */
+.header{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:4px solid #3e6b9c;
+  padding-bottom:14px;margin-bottom:18px;flex-wrap:wrap;gap:10px;
+}
+.header h1{
+  font-size:42px;font-weight:900;letter-spacing:2px;
+  color:#c9e1ff;text-shadow:0 4px 8px #00000060;
+}
+.header h1 span{
+  background:#2f4b6e;padding:6px 18px;border-radius:60px;
+  font-size:24px;color:#ffd966;border:2px solid #ffb347;
+  vertical-align:middle;margin-left:10px;
+}
+
+/* ===== 环节选项卡 ===== */
+.stage-tabs{display:flex;gap:10px;margin-bottom:20px;}
+.stage-tab{
+  flex:1;text-align:center;padding:16px 12px;cursor:pointer;
+  font-size:30px;font-weight:800;color:#9ab8d4;
+  background:#102433;border-radius:60px;
+  border:2px solid var(--line);transition:all .2s;
+}
+.stage-tab:hover{background:#18344a;color:#d9ecff;}
+.stage-tab.active{
+  background:var(--gold);color:#0b1a28;
+  border-color:#ffd966;box-shadow:0 0 20px rgba(245,176,66,.4);
+}
+
+.stage-panel{display:none;}
+.stage-panel.active{display:block;animation:fadeIn .4s;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== 通用 ===== */
+.sec-title{
+  font-size:34px;font-weight:800;color:#ffe484;
+  text-align:center;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.btn{
+  border:none;border-radius:60px;cursor:pointer;
+  font-family:inherit;font-weight:700;letter-spacing:1px;
+  padding:18px 32px;font-size:28px;
+  transition:all .12s;box-shadow:0 8px 0 rgba(0,0,0,.5);
+  user-select:none;
+}
+.btn:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.5);}
+.btn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none;}
+.btn-gold{background:var(--gold);color:#0b1a28;box-shadow:0 8px 0 var(--gold-dark);}
+.btn-gold:active{box-shadow:0 2px 0 var(--gold-dark);}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 8px 0 var(--blue-dark);}
+.btn-blue:active{box-shadow:0 2px 0 var(--blue-dark);}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 8px 0 #2e5a20;}
+.btn-green:active{box-shadow:0 2px 0 #2e5a20;}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 8px 0 #6a1f1f;}
+.btn-red:active{box-shadow:0 2px 0 #6a1f1f;}
+
+/* ===== 环节1 布局 ===== */
+.s1-layout{
+  display:grid;grid-template-columns:340px 1fr;
+  gap:24px;align-items:start;
+}
+@media(max-width:900px){.s1-layout{grid-template-columns:1fr;}}
+
+.sources-panel{
+  background:var(--card);border-radius:32px;
+  padding:20px;border:2px solid var(--line);
+}
+.sources-panel h3{
+  font-size:30px;color:#ffd966;margin-bottom:16px;
+  text-align:center;border-bottom:2px dashed var(--line);
+  padding-bottom:12px;
+}
+.source-item{
+  display:flex;align-items:center;gap:16px;
+  background:#0c1822;border-radius:24px;
+  padding:14px 18px;margin-bottom:14px;
+  border:2px solid #35526e;cursor:grab;
+  transition:all .15s;touch-action:none;
+}
+.source-item:hover{border-color:var(--gold);background:#142a3a;}
+.source-item:active{cursor:grabbing;}
+.source-item.dragging{opacity:.4;}
+.source-icon{
+  width:70px;height:70px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.source-icon svg{width:100%;height:100%;}
+.source-label{font-size:28px;font-weight:700;color:#e0eaff;}
+.source-sub{font-size:22px;color:#9ab8d4;margin-top:4px;}
+
+.iso-icon{
+  width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;flex-shrink:0;
+}
+.iso-35s{background:#3e2a1e;color:#ffb347;border:3px solid #ffb347;}
+.iso-32p{background:#1e2a3e;color:#6bb3ff;border:3px solid #6bb3ff;}
+
+/* 培养基 */
+.medium-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding-top:6px;
+}
+.medium{
+  width:480px;height:480px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#1a3348,#0a141e 80%);
+  border:8px solid #4a7fb5;
+  box-shadow:inset 0 0 80px rgba(74,127,181,.3),0 0 50px rgba(74,127,181,.25);
+  position:relative;overflow:hidden;
+  transition:all .4s;
+}
+.medium.drag-over{
+  border-color:var(--gold);
+  box-shadow:inset 0 0 80px rgba(245,176,66,.3),0 0 60px rgba(245,176,66,.5);
+}
+.medium-inner{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:30px;
+}
+.medium-isotopes{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:14px;min-height:70px;
+}
+.medium-iso-badge{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:900;
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{
+  0%{transform:scale(0);opacity:0;}
+  100%{transform:scale(1);opacity:1;}
+}
+.medium-ecoli{
+  position:relative;margin:8px 0;
+  transition:all .5s;
+}
+.medium-ecoli svg{
+  width:160px;height:80px;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.medium-ecoli.labeled svg{
+  filter:drop-shadow(0 0 18px #ffb347) drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.labeled-badge{
+  position:absolute;top:-14px;right:-14px;
+  font-size:20px;font-weight:900;padding:4px 12px;
+  border-radius:30px;white-space:nowrap;
+  animation:popIn .4s;
+}
+.medium-phage{
+  position:relative;margin:8px 0;
+  transition:all .5s;
+}
+.medium-phage svg{
+  width:90px;height:145px;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.medium-phage.labeled svg{
+  filter:drop-shadow(0 0 18px #6bb3ff) drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.medium-status{
+  margin-top:16px;font-size:28px;font-weight:700;
+  padding:12px 28px;border-radius:40px;
+  background:#0c1822;border:2px solid var(--line);
+  color:#9ab8d4;text-align:center;min-height:60px;
+  line-height:1.4;
+}
+.medium-status.ok{color:#b1ff9e;border-color:var(--green);}
+.medium-status.wait{color:#ffd966;border-color:var(--gold);}
+.medium-status.err{color:#ff8b8b;border-color:var(--red);}
+
+.toast{
+  position:fixed;top:30px;left:50%;transform:translateX(-50%);
+  background:#3e1c1c;color:#ff8b8b;border:3px solid var(--red);
+  padding:18px 36px;border-radius:60px;font-size:30px;font-weight:700;
+  z-index:9999;animation:toastIn .3s;
+  box-shadow:0 10px 30px rgba(0,0,0,.7);
+}
+.toast.ok{background:#1e3a1e;color:#b1ff9e;border-color:var(--green);}
+@keyframes toastIn{
+  from{opacity:0;transform:translate(-50%,-20px);}
+  to{opacity:1;transform:translate(-50%,0);}
+}
+
+/* ===== 环节2 布局 ===== */
+.s2-layout{display:flex;flex-direction:column;gap:20px;}
+
+.phage-sources{
+  display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+  background:var(--card);border-radius:32px;
+  padding:20px 24px;border:2px solid var(--line);
+}
+.phage-source{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:16px 22px;border-radius:28px;
+  background:#0c1822;border:3px solid #35526e;
+  cursor:grab;transition:all .15s;touch-action:none;
+  min-width:170px;
+}
+.phage-source:hover{border-color:var(--gold);background:#142a3a;transform:translateY(-4px);}
+.phage-source:active{cursor:grabbing;}
+.phage-source.dragging{opacity:.4;}
+.phage-source svg{width:80px;height:130px;}
+.phage-source .p-label{
+  font-size:26px;font-weight:800;padding:6px 18px;
+  border-radius:40px;white-space:nowrap;
+}
+.p-35s{background:#3e2a1e;color:#ffb347;border:2px solid #ffb347;}
+.p-32p{background:#1e2a3e;color:#6bb3ff;border:2px solid #6bb3ff;}
+.p-both{background:#2a1e3e;color:#d8a0ff;border:2px solid #b07bff;}
+
+.tube-zone{
+  display:flex;justify-content:center;
+  background:var(--card);border-radius:32px;
+  padding:20px;border:2px solid var(--line);
+  min-height:560px;position:relative;
+}
+.tube-zone.drag-over .big-tube{
+  border-color:var(--gold);
+  box-shadow:0 0 50px rgba(245,176,66,.6);
+}
+.big-tube{
+  width:100%;max-width:420px;height:540px;
+  border:6px solid #7a9ec0;border-top:none;
+  border-radius:0 0 200px 200px;
+  background:linear-gradient(to top,
+    rgba(74,127,181,.25) 0%,
+    rgba(74,127,181,.12) 60%,
+    rgba(74,127,181,.05) 100%);
+  position:relative;overflow:hidden;
+  transition:all .4s;
+  box-shadow:inset 0 0 60px rgba(74,127,181,.2);
+}
+.tube-inner{
+  position:absolute;inset:0;
+}
+.tube-ecoli{
+  position:absolute;transform:translate(-50%,-50%);
+  transition:all .8s cubic-bezier(.34,1.2,.64,1);
+}
+.tube-ecoli svg{width:100px;height:50px;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.tube-phage{
+  position:absolute;transform:translate(-50%,-50%);
+  transition:all .8s cubic-bezier(.34,1.2,.64,1);
+}
+.tube-phage svg{width:60px;height:96px;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+.tube-phage.iso-35s svg{filter:drop-shadow(0 0 12px #ffb347) drop-shadow(0 4px 6px rgba(0,0,0,.5));}
+.tube-phage.iso-32p svg{filter:drop-shadow(0 0 12px #6bb3ff) drop-shadow(0 4px 6px rgba(0,0,0,.5));}
+.tube-phage.iso-both svg{filter:drop-shadow(0 0 14px #d8a0ff) drop-shadow(0 4px 6px rgba(0,0,0,.5));}
+
+.tube-phase-label{
+  position:absolute;left:12px;
+  font-size:22px;font-weight:700;color:#9ab8d4;
+  background:rgba(10,20,30,.7);padding:6px 14px;
+  border-radius:20px;transition:all .5s;
+}
+.tube-phase-label.top-label{top:14px;}
+.tube-phase-label.bottom-label{bottom:14px;}
+
+/* ===== 噬菌体标记闪烁效果（培养基内） ===== */
+/* ³⁵S标记：蛋白质外壳闪烁橙色荧光 */
+.phage-glow-35s .phage-coat{
+  animation:glowOrange 1.2s infinite;
+  filter:drop-shadow(0 0 20px #ffb347) drop-shadow(0 0 40px #ffb347) drop-shadow(0 0 70px #ffb347);
+}
+@keyframes glowOrange{
+  0%,100%{filter:drop-shadow(0 0 20px #ffb347) drop-shadow(0 0 40px #ffb347) drop-shadow(0 0 70px #ffb347);opacity:1;}
+  50%{filter:drop-shadow(0 0 35px #ffb347) drop-shadow(0 0 70px #ffb347) drop-shadow(0 0 110px #ffb347);opacity:.7;}
+}
+/* ³²P标记：内部核酸闪烁蓝色荧光 */
+.phage-glow-32p .phage-dna{
+  animation:glowBlue 1.2s infinite;
+  filter:drop-shadow(0 0 20px #6bb3ff) drop-shadow(0 0 40px #6bb3ff) drop-shadow(0 0 70px #6bb3ff);
+}
+@keyframes glowBlue{
+  0%,100%{filter:drop-shadow(0 0 20px #6bb3ff) drop-shadow(0 0 40px #6bb3ff) drop-shadow(0 0 70px #6bb3ff);opacity:1;}
+  50%{filter:drop-shadow(0 0 35px #6bb3ff) drop-shadow(0 0 70px #6bb3ff) drop-shadow(0 0 110px #6bb3ff);opacity:.7;}
+}
+/* 双标记：外壳橙色+内部蓝色同时闪烁 */
+.phage-glow-both .phage-coat{
+  animation:glowOrange 1.2s infinite;
+}
+.phage-glow-both .phage-dna{
+  animation:glowBlue 1.2s infinite;
+}
+
+/* 试管内放射标记 —— 加亮加大 */
+.radio-icon{
+  position:absolute;
+  font-size:80px;
+  text-shadow:
+    0 0 20px currentColor,
+    0 0 40px currentColor,
+    0 0 70px currentColor,
+    0 0 110px currentColor;
+  animation:pulse 1.2s infinite;
+  transform:translate(-50%,-50%);
+  font-weight:900;
+  line-height:1;
+  z-index:10;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:.55;transform:translate(-50%,-50%) scale(1.2);}
+}
+
+/* 操作按钮行 */
+.s2-controls{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  background:var(--card);border-radius:32px;
+  padding:18px 24px;border:2px solid var(--line);
+}
+.s2-controls .btn{min-width:200px;}
+
+/* 结果面板 */
+.result-panel{
+  background:var(--card);border-radius:32px;
+  padding:22px 28px;border:2px solid var(--line);
+  min-height:120px;
+}
+.result-panel h4{
+  font-size:30px;color:#ffd966;margin-bottom:14px;
+}
+.result-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+@media(max-width:700px){.result-grid{grid-template-columns:1fr;}}
+.result-box{
+  background:#0c1822;border-radius:24px;
+  padding:18px 22px;border:2px solid #35526e;
+  text-align:center;
+}
+.result-box .r-label{
+  font-size:26px;color:#9ab8d4;margin-bottom:8px;
+}
+.result-box .r-value{
+  font-size:34px;font-weight:900;
+}
+.r-value.high{color:#ff8b8b;}
+.r-value.low{color:#b1ff9e;}
+.r-value.mid{color:#ffd966;}
+
+.step-tip{
+  font-size:28px;color:#c9e1ff;text-align:center;
+  padding:14px;margin-top:10px;line-height:1.6;
+  background:#0c1822;border-radius:24px;
+  border:2px dashed #35526e;
+}
+.step-tip.highlight{
+  border-color:var(--gold);color:#ffe484;
+  animation:pulseBg 2s infinite;
+}
+@keyframes pulseBg{
+  0%,100%{background:#0c1822;}
+  50%{background:#1e2a1e;}
+}
+
+.reset-row{
+  display:flex;justify-content:center;gap:16px;margin-top:16px;
+}
+
+/* 页面级缩放提示 */
+.hint{
+  font-size:24px;color:#7a9ec0;text-align:center;
+  margin-top:12px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 顶栏 -->
+  <div class="header">
+    <h1>🧬 噬菌体侵染实验 <span>赫尔希 & 蔡斯</span></h1>
+    <div style="font-size:26px;color:#9ab8d4;font-weight:700;">拖动 → 观察 → 推理</div>
+  </div>
+
+  <!-- 环节选项卡 -->
+  <div class="stage-tabs">
+    <div class="stage-tab active" data-stage="1">环节一 · 标记</div>
+    <div class="stage-tab" data-stage="2">环节二 · 侵染</div>
+  </div>
+
+  <!-- ==================== 环节1 ==================== -->
+  <div class="stage-panel active" id="stage1">
+    <div class="sec-title">🧪 标记过程：把同位素“喂”给大肠杆菌，再“喂”给噬菌体</div>
+
+    <div class="s1-layout">
+      <!-- 左侧可拖动对象 -->
+      <div class="sources-panel">
+        <h3>可拖动对象</h3>
+
+        <div class="source-item" id="src35s" data-type="35S">
+          <div class="source-icon"><div class="iso-icon iso-35s">35S</div></div>
+          <div>
+            <div class="source-label">³⁵S</div>
+            <div class="source-sub">标记蛋白质</div>
+          </div>
+        </div>
+
+        <div class="source-item" id="src32p" data-type="32P">
+          <div class="source-icon"><div class="iso-icon iso-32p">32P</div></div>
+          <div>
+            <div class="source-label">³²P</div>
+            <div class="source-sub">标记DNA</div>
+          </div>
+        </div>
+
+        <div class="source-item" id="srcEcoli" data-type="ecoli">
+          <div class="source-icon">
+            <svg viewBox="0 0 160 80"><ellipse cx="80" cy="40" rx="70" ry="30" fill="#3498db" stroke="#2980b9" stroke-width="4"/><path d="M30,40 Q50,22 70,40 Q90,58 110,40 Q130,22 150,40" stroke="#e74c3c" fill="none" stroke-width="3" opacity=".5"/></svg>
+          </div>
+          <div>
+            <div class="source-label">大肠杆菌</div>
+            <div class="source-sub">未标记的宿主</div>
+          </div>
+        </div>
+
+        <div class="source-item" id="srcPhage" data-type="phage">
+          <div class="source-icon">
+            <svg viewBox="0 0 100 160">
+              <polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="#9b59b6" stroke="#7d3c98" stroke-width="3"/>
+              <path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="#e74c3c" fill="none" stroke-width="3"/>
+              <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+              <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+              <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+              <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+              <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+              <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+              <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="source-label">T2噬菌体</div>
+            <div class="source-sub">未标记的病毒</div>
+          </div>
+        </div>
+
+        <div style="font-size:24px;color:#9ab8d4;line-height:1.6;margin-top:8px;">
+          操作顺序：<br>
+          ① 拖 ³⁵S / ³²P 到培养基<br>
+          ② 拖 大肠杆菌 到培养基<br>
+          ③ 拖 噬菌体 到培养基
+        </div>
+      </div>
+
+      <!-- 右侧培养基 -->
+      <div class="medium-wrap">
+        <div class="medium" id="medium" data-drop="medium">
+          <div class="medium-inner" id="mediumInner">
+            <!-- 动态内容 -->
+          </div>
+        </div>
+        <div class="medium-status" id="mediumStatus">培养基空空如也…</div>
+        <div class="reset-row">
+          <button class="btn btn-blue" id="resetStage1">🔄 重置环节一</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 环节2 ==================== -->
+  <div class="stage-panel" id="stage2">
+    <div class="sec-title">⚗️ 侵染实验：拖动噬菌体 → 搅拌 → 离心 → 检测放射性</div>
+
+    <div class="s2-layout">
+      <!-- 可拖动噬菌体 -->
+      <div class="phage-sources">
+        <div class="phage-source" data-phage="35S">
+          <svg viewBox="0 0 100 160">
+            <polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="#9b59b6" stroke="#7d3c98" stroke-width="3"/>
+            <path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="#e74c3c" fill="none" stroke-width="3"/>
+            <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+            <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+            <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+            <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+            <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+          </svg>
+          <div class="p-label p-35s">³⁵S 标记</div>
+        </div>
+
+        <div class="phage-source" data-phage="32P">
+          <svg viewBox="0 0 100 160">
+            <polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="#9b59b6" stroke="#7d3c98" stroke-width="3"/>
+            <path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="#6bb3ff" fill="none" stroke-width="3"/>
+            <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+            <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+            <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+            <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+            <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+          </svg>
+          <div class="p-label p-32p">³²P 标记</div>
+        </div>
+
+        <div class="phage-source" data-phage="both">
+          <svg viewBox="0 0 100 160">
+            <polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="#9b59b6" stroke="#7d3c98" stroke-width="3"/>
+            <path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="#d8a0ff" fill="none" stroke-width="3"/>
+            <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+            <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+            <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+            <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+            <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+            <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+          </svg>
+          <div class="p-label p-both">³⁵S + ³²P</div>
+        </div>
+      </div>
+
+      <!-- 试管 -->
+      <div class="tube-zone" id="tubeZone">
+        <div class="big-tube" id="bigTube" data-drop="tube">
+          <div class="tube-inner" id="tubeInner"></div>
+          <div class="tube-phase-label top-label">上清液区</div>
+          <div class="tube-phase-label bottom-label">沉淀物区</div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="s2-controls">
+        <button class="btn btn-blue" id="stirBtn" disabled>🌀 搅拌</button>
+        <button class="btn btn-blue" id="centrifugeBtn" disabled>⚗️ 离心</button>
+        <button class="btn btn-red" id="detectBtn" disabled>☢️ 检测放射性</button>
+      </div>
+
+      <!-- 结果面板 -->
+      <div class="result-panel">
+        <h4>📊 实验结果</h4>
+        <div class="result-grid">
+          <div class="result-box">
+            <div class="r-label">上清液放射性</div>
+            <div class="r-value" id="supResult">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">沉淀物放射性</div>
+            <div class="r-value" id="pelletResult">—</div>
+          </div>
+        </div>
+        <div class="step-tip" id="stepTip">请先拖动一种噬菌体到试管中…</div>
+      </div>
+
+      <div class="reset-row">
+        <button class="btn btn-blue" id="resetStage2">🔄 重置环节二</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">提示：所有操作均可用鼠标 / 触摸拖动。按顺序操作效果最佳。</div>
+</div>
+
+<script>
+(function(){
+  // ============================================================
+  // 0. 常量与工具
+  // ============================================================
+  // 标记后的噬菌体SVG：带类名以便单独控制外壳和核酸
+  function makePhageSVG(labeled){
+    // 外壳（蛋白质）元素
+    let coatFill = '#9b59b6';
+    let coatStroke = '#7d3c98';
+    let dnaStroke = '#e74c3c';
+    let coatClass = '';
+    let dnaClass = '';
+    if (labeled === '35S'){
+      // 蛋白质外壳橙色荧光
+      coatFill = '#ffb347';
+      coatStroke = '#e67e22';
+      coatClass = 'phage-coat';
+      dnaClass = 'phage-dna';
+    } else if (labeled === '32P'){
+      // 内部核酸蓝色荧光
+      dnaStroke = '#6bb3ff';
+      coatClass = 'phage-coat';
+      dnaClass = 'phage-dna';
+    } else if (labeled === 'both'){
+      coatFill = '#ffb347';
+      coatStroke = '#e67e22';
+      dnaStroke = '#6bb3ff';
+      coatClass = 'phage-coat';
+      dnaClass = 'phage-dna';
+    } else {
+      // 未标记，不需要特殊类
+      return `<svg viewBox="0 0 100 160">
+        <polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="${coatFill}" stroke="${coatStroke}" stroke-width="3"/>
+        <path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="${dnaStroke}" fill="none" stroke-width="3"/>
+        <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+        <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+        <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+        <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+        <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+        <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+        <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+      </svg>`;
+    }
+    return `<svg viewBox="0 0 100 160">
+      <polygon class="${coatClass}" points="50,8 85,30 85,70 50,92 15,70 15,30" fill="${coatFill}" stroke="${coatStroke}" stroke-width="3"/>
+      <path class="${dnaClass}" d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="${dnaStroke}" fill="none" stroke-width="3"/>
+      <rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/>
+      <rect x="46" y="92" width="8" height="40" fill="#f39c12"/>
+      <rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+      <line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/>
+      <line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/>
+      <line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/>
+      <line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/>
+    </svg>`;
+  }
+
+  // 未标记的噬菌体SVG（用于源头）
+  const SVG_PHAGE = `<svg viewBox="0 0 100 160"><polygon points="50,8 85,30 85,70 50,92 15,70 15,30" fill="#9b59b6" stroke="#7d3c98" stroke-width="3"/><path d="M35,38 Q50,48 65,38 Q50,58 35,48 Q50,68 65,58" stroke="#e74c3c" fill="none" stroke-width="3"/><rect x="40" y="92" width="20" height="34" fill="#e67e22" stroke="#d35400" stroke-width="3"/><rect x="46" y="92" width="8" height="40" fill="#f39c12"/><rect x="30" y="126" width="40" height="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/><line x1="30" y1="134" x2="10" y2="152" stroke="#d35400" stroke-width="3"/><line x1="38" y1="134" x2="25" y2="156" stroke="#d35400" stroke-width="3"/><line x1="62" y1="134" x2="75" y2="156" stroke="#d35400" stroke-width="3"/><line x1="70" y1="134" x2="90" y2="152" stroke="#d35400" stroke-width="3"/></svg>`;
+
+  const SVG_ECOLI = `<svg viewBox="0 0 160 80"><ellipse cx="80" cy="40" rx="70" ry="30" fill="#3498db" stroke="#2980b9" stroke-width="4"/><path d="M30,40 Q50,22 70,40 Q90,58 110,40 Q130,22 150,40" stroke="#e74c3c" fill="none" stroke-width="3" opacity=".5"/></svg>`;
+
+  // ============================================================
+  // 1. 通用拖拽系统（Pointer Events）
+  // ============================================================
+  let dragState = null;
+
+  function makeDraggable(el, getData){
+    el.style.touchAction = 'none';
+    el.addEventListener('pointerdown', function(e){
+      if (dragState) return;
+      const data = getData();
+      if (!data) return;
+      e.preventDefault();
+
+      const rect = el.getBoundingClientRect();
+      const ghost = el.cloneNode(true);
+      ghost.style.position = 'fixed';
+      ghost.style.left = rect.left + 'px';
+      ghost.style.top = rect.top + 'px';
+      ghost.style.width = rect.width + 'px';
+      ghost.style.height = rect.height + 'px';
+      ghost.style.pointerEvents = 'none';
+      ghost.style.opacity = '.9';
+      ghost.style.zIndex = '9999';
+      ghost.style.transform = 'scale(1.08)';
+      ghost.style.transition = 'transform .15s';
+      ghost.style.borderRadius = '24px';
+      document.body.appendChild(ghost);
+
+      dragState = {
+        data: data,
+        ghost: ghost,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top
+      };
+      el.classList.add('dragging');
+
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+    });
+  }
+
+  function onPointerMove(e){
+    if (!dragState) return;
+    dragState.ghost.style.left = (e.clientX - dragState.offsetX) + 'px';
+    dragState.ghost.style.top  = (e.clientY - dragState.offsetY) + 'px';
+  }
+
+  function onPointerUp(e){
+    if (!dragState) return;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+
+    const ghost = dragState.ghost;
+    const data = dragState.data;
+    ghost.remove();
+
+    // 找放置区
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    const dropZone = target ? target.closest('[data-drop]') : null;
+
+    if (dropZone){
+      const zone = dropZone.dataset.drop;
+      if (zone === 'medium') handleMediumDrop(data);
+      else if (zone === 'tube') handleTubeDrop(data);
+    }
+
+    document.querySelectorAll('.dragging').forEach(function(el){
+      el.classList.remove('dragging');
+    });
+    dragState = null;
+  }
+
+  // ============================================================
+  // 2. 环节1：标记
+  // ============================================================
+  const medium = document.getElementById('medium');
+  const mediumInner = document.getElementById('mediumInner');
+  const mediumStatus = document.getElementById('mediumStatus');
+
+  const s1 = {
+    isotopes: new Set(),   // '35S' / '32P'
+    hasEcoli: false,
+    hasPhage: false
+  };
+
+  function showToast(msg, ok){
+    const t = document.createElement('div');
+    t.className = 'toast' + (ok ? ' ok' : '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){
+      t.style.transition = 'opacity .4s';
+      t.style.opacity = '0';
+      setTimeout(function(){ t.remove(); }, 400);
+    }, 1800);
+  }
+
+  function handleMediumDrop(data){
+    const type = data.type;
+
+    // --- 拖入同位素 ---
+    if (type === '35S' || type === '32P'){
+      if (s1.isotopes.has(type)){
+        showToast(type + ' 已经在培养基里了', false);
+        return;
+      }
+      s1.isotopes.add(type);
+      renderMedium();
+      showToast(type + ' 已加入培养基', true);
+      return;
+    }
+
+    // --- 拖入大肠杆菌 ---
+    if (type === 'ecoli'){
+      if (s1.hasEcoli){
+        showToast('大肠杆菌已经在培养基里了', false);
+        return;
+      }
+      if (s1.isotopes.size === 0){
+        showToast('请先加入 ³⁵S 或 ³²P，大肠杆菌需要同位素才能被标记', false);
+        return;
+      }
+      s1.hasEcoli = true;
+      renderMedium();
+      showToast('大肠杆菌已加入，正在被同位素标记…', true);
+      return;
+    }
+
+    // --- 拖入噬菌体 ---
+    if (type === 'phage'){
+      if (s1.hasPhage){
+        showToast('噬菌体已经在培养基里了', false);
+        return;
+      }
+      if (!s1.hasEcoli){
+        showToast('请先加入大肠杆菌，噬菌体需要宿主', false);
+        return;
+      }
+      s1.hasPhage = true;
+      renderMedium();
+      showToast('噬菌体已加入，正在侵染大肠杆菌并被标记…', true);
+      return;
+    }
+  }
+
+  function renderMedium(){
+    // 同位素
+    let isoHTML = '';
+    s1.isotopes.forEach(function(iso){
+      const cls = iso === '35S' ? 'iso-35s' : 'iso-32p';
+      isoHTML += '<div class="medium-iso-badge ' + cls + '">' + iso + '</div>';
+    });
+
+    // 大肠杆菌
+    let ecoliHTML = '';
+    if (s1.hasEcoli){
+      const labeled = s1.isotopes.size > 0;
+      const badge = labeled
+        ? '<div class="labeled-badge" style="background:#3e2a1e;color:#ffb347;border:2px solid #ffb347;">已标记</div>'
+        : '';
+      ecoliHTML = '<div class="medium-ecoli' + (labeled ? ' labeled' : '') + '">' + SVG_ECOLI + badge + '</div>';
+    }
+
+    // 噬菌体
+    let phageHTML = '';
+    if (s1.hasPhage){
+      const labeled = s1.isotopes.size > 0 && s1.hasEcoli;
+      let glowClass = '';
+      let phageSvg = SVG_PHAGE;
+      let badgeColor = '';
+
+      if (labeled){
+        // 根据同位素类型决定标记部位和颜色
+        if (s1.isotopes.has('35S') && s1.isotopes.has('32P')){
+          glowClass = 'phage-glow-both';
+          phageSvg = makePhageSVG('both');
+          badgeColor = 'background:#2a1e3e;color:#d8a0ff;border:2px solid #b07bff;';
+        } else if (s1.isotopes.has('35S')){
+          glowClass = 'phage-glow-35s';
+          phageSvg = makePhageSVG('35S');
+          badgeColor = 'background:#3e2a1e;color:#ffb347;border:2px solid #ffb347;';
+        } else if (s1.isotopes.has('32P')){
+          glowClass = 'phage-glow-32p';
+          phageSvg = makePhageSVG('32P');
+          badgeColor = 'background:#1e2a3e;color:#6bb3ff;border:2px solid #6bb3ff;';
+        }
+      }
+
+      const badge = labeled
+        ? '<div class="labeled-badge" style="' + badgeColor + '">已标记</div>'
+        : '';
+      phageHTML = '<div class="medium-phage ' + glowClass + '">' + phageSvg + badge + '</div>';
+    }
+
+    mediumInner.innerHTML =
+      '<div class="medium-isotopes">' + isoHTML + '</div>' +
+      ecoliHTML + phageHTML;
+
+    // 状态文字
+    if (!s1.hasEcoli && s1.isotopes.size === 0){
+      mediumStatus.textContent = '培养基空空如也…';
+      mediumStatus.className = 'medium-status';
+    } else if (s1.isotopes.size > 0 && !s1.hasEcoli){
+      mediumStatus.textContent = '培养基含 ' + Array.from(s1.isotopes).join(' + ') + '，等待大肠杆菌…';
+      mediumStatus.className = 'medium-status wait';
+    } else if (s1.hasEcoli && !s1.hasPhage){
+      mediumStatus.textContent = '大肠杆菌已被 ' + Array.from(s1.isotopes).join(' + ') + ' 标记，等待噬菌体…';
+      mediumStatus.className = 'medium-status ok';
+    } else if (s1.hasPhage){
+      let labelDesc = '';
+      if (s1.isotopes.has('35S') && s1.isotopes.has('32P')){
+        labelDesc = '蛋白质外壳 + 内部DNA';
+      } else if (s1.isotopes.has('35S')){
+        labelDesc = '蛋白质外壳';
+      } else if (s1.isotopes.has('32P')){
+        labelDesc = '内部DNA';
+      }
+      mediumStatus.textContent = '✅ 噬菌体的 ' + labelDesc + ' 已被 ' + Array.from(s1.isotopes).join(' + ') + ' 标记，可以进入侵染实验！';
+      mediumStatus.className = 'medium-status ok';
+    }
+  }
+
+  // 注册环节1拖拽
+  makeDraggable(document.getElementById('src35s'), function(){ return {type:'35S'}; });
+  makeDraggable(document.getElementById('src32p'), function(){ return {type:'32P'}; });
+  makeDraggable(document.getElementById('srcEcoli'), function(){
+    if (s1.hasEcoli) return null;
+    return {type:'ecoli'};
+  });
+  makeDraggable(document.getElementById('srcPhage'), function(){
+    if (s1.hasPhage) return null;
+    return {type:'phage'};
+  });
+
+  // 培养基高亮
+  medium.addEventListener('dragover', function(e){ e.preventDefault(); });
+  medium.addEventListener('pointerenter', function(){
+    if (dragState) medium.classList.add('drag-over');
+  });
+  medium.addEventListener('pointerleave', function(){
+    medium.classList.remove('drag-over');
+  });
+
+  // 重置环节1
+  document.getElementById('resetStage1').addEventListener('click', function(){
+    s1.isotopes.clear();
+    s1.hasEcoli = false;
+    s1.hasPhage = false;
+    renderMedium();
+  });
+
+  renderMedium();
+
+  // ============================================================
+  // 3. 环节2：侵染
+  // ============================================================
+  const tubeInner = document.getElementById('tubeInner');
+  const supResult = document.getElementById('supResult');
+  const pelletResult = document.getElementById('pelletResult');
+  const stepTip = document.getElementById('stepTip');
+  const stirBtn = document.getElementById('stirBtn');
+  const centrifugeBtn = document.getElementById('centrifugeBtn');
+  const detectBtn = document.getElementById('detectBtn');
+
+  // step: 0=空管, 1=噬菌体已加入(侵染), 2=已搅拌, 3=已离心, 4=已检测
+  const s2 = {
+    step: 0,
+    phageType: null,
+    ecoliPositions: [
+      {left:'32%', top:'62%'},
+      {left:'58%', top:'68%'},
+      {left:'45%', top:'55%'}
+    ],
+    ecoliPositionsCentrifuged: [
+      {left:'35%', top:'82%'},
+      {left:'58%', top:'86%'},
+      {left:'46%', top:'76%'}
+    ],
+    phagePositions: [
+      {left:'28%', top:'56%'},
+      {left:'62%', top:'62%'},
+      {left:'48%', top:'48%'},
+      {left:'38%', top:'70%'}
+    ],
+    phagePositionsStirred: [
+      {left:'25%', top:'42%'},
+      {left:'65%', top:'48%'},
+      {left:'50%', top:'36%'},
+      {left:'40%', top:'58%'}
+    ],
+    phagePositionsCentrifuged: [
+      {left:'25%', top:'14%'},
+      {left:'58%', top:'22%'},
+      {left:'42%', top:'10%'},
+      {left:'70%', top:'18%'}
+    ]
+  };
+
+  function renderTube(){
+    const step = s2.step;
+    const phageType = s2.phageType;
+
+    // 选择大肠杆菌位置
+    const ecoliPos = step >= 3 ? s2.ecoliPositionsCentrifuged : s2.ecoliPositions;
+    // 选择噬菌体位置
+    let phagePos;
+    if (step >= 3) phagePos = s2.phagePositionsCentrifuged;
+    else if (step === 2) phagePos = s2.phagePositionsStirred;
+    else phagePos = s2.phagePositions;
+
+    let html = '';
+
+    // 大肠杆菌
+    ecoliPos.forEach(function(p){
+      html += '<div class="tube-ecoli" style="left:' + p.left + ';top:' + p.top + ';">' + SVG_ECOLI + '</div>';
+    });
+
+    // 噬菌体（step >= 1 才显示）
+    if (step >= 1 && phageType){
+      const cls = phageType === '35S' ? 'iso-35s'
+                : phageType === '32P' ? 'iso-32p'
+                : 'iso-both';
+      phagePos.forEach(function(p){
+        html += '<div class="tube-phage ' + cls + '" style="left:' + p.left + ';top:' + p.top + ';">' + SVG_PHAGE + '</div>';
+      });
+    }
+
+    // 检测放射性后：显示放射标记
+    if (step >= 4 && phageType){
+      const supRadio = (phageType === '35S' || phageType === 'both');
+      const pelletRadio = (phageType === '32P' || phageType === 'both');
+
+      if (supRadio){
+        html += '<div class="radio-icon" style="left:25%;top:16%;color:#ffb347;">☢</div>';
+        html += '<div class="radio-icon" style="left:60%;top:24%;color:#ffb347;">☢</div>';
+        html += '<div class="radio-icon" style="left:45%;top:12%;color:#ffb347;">☢</div>';
+      }
+      if (pelletRadio){
+        html += '<div class="radio-icon" style="left:35%;top:82%;color:#6bb3ff;">☢</div>';
+        html += '<div class="radio-icon" style="left:58%;top:86%;color:#6bb3ff;">☢</div>';
+        html += '<div class="radio-icon" style="left:46%;top:76%;color:#6bb3ff;">☢</div>';
+      }
+    }
+
+    tubeInner.innerHTML = html;
+  }
+
+  function updateS2UI(){
+    const step = s2.step;
+
+    // 按钮状态
+    stirBtn.disabled      = (step !== 1);
+    centrifugeBtn.disabled = (step !== 2);
+    detectBtn.disabled     = (step !== 3);
+
+    // 提示文字
+    stepTip.classList.remove('highlight');
+    if (step === 0){
+      stepTip.textContent = '请先拖动一种噬菌体到试管中…';
+      supResult.textContent = '—';
+      pelletResult.textContent = '—';
+      supResult.className = 'r-value';
+      pelletResult.className = 'r-value';
+    } else if (step === 1){
+      stepTip.textContent = '🦠 噬菌体正在侵染大肠杆菌… 点击“搅拌”使外壳与细菌分离。';
+      stepTip.classList.add('highlight');
+      supResult.textContent = '—';
+      pelletResult.textContent = '—';
+    } else if (step === 2){
+      stepTip.textContent = '🌀 搅拌完成：噬菌体外壳与大肠杆菌已分离。点击“离心”分层。';
+      stepTip.classList.add('highlight');
+    } else if (step === 3){
+      stepTip.textContent = '⚗️ 离心完成：大肠杆菌沉在底部（沉淀物），噬菌体外壳留在上部（上清液）。点击“检测放射性”。';
+      stepTip.classList.add('highlight');
+    } else if (step === 4){
+      stepTip.textContent = '☢️ 检测完成！观察上清液与沉淀物的放射性。';
+      stepTip.classList.remove('highlight');
+      if (s2.phageType === '35S'){
+        supResult.textContent = '高 ☢';
+        supResult.className = 'r-value high';
+        pelletResult.textContent = '低';
+        pelletResult.className = 'r-value low';
+      } else if (s2.phageType === '32P'){
+        supResult.textContent = '低';
+        supResult.className = 'r-value low';
+        pelletResult.textContent = '高 ☢';
+        pelletResult.className = 'r-value high';
+      } else if (s2.phageType === 'both'){
+        supResult.textContent = '高 ☢';
+        supResult.className = 'r-value high';
+        pelletResult.textContent = '高 ☢';
+        pelletResult.className = 'r-value high';
+      }
+    }
+  }
+
+  function handleTubeDrop(data){
+    const phageType = data.phage;
+    if (!phageType) return;
+
+    if (s2.step >= 1 && s2.step <= 4){
+      s2.step = 0;
+      s2.phageType = null;
+    }
+
+    s2.phageType = phageType;
+    s2.step = 1;
+    renderTube();
+    updateS2UI();
+
+    const label = phageType === '35S' ? '³⁵S 标记噬菌体'
+                : phageType === '32P' ? '³²P 标记噬菌体'
+                : '³⁵S + ³²P 双标记噬菌体';
+    showToast('已加入：' + label + '，开始侵染…', true);
+  }
+
+  stirBtn.addEventListener('click', function(){
+    if (s2.step !== 1) return;
+    s2.step = 2;
+    renderTube();
+    updateS2UI();
+  });
+
+  centrifugeBtn.addEventListener('click', function(){
+    if (s2.step !== 2) return;
+    s2.step = 3;
+    renderTube();
+    updateS2UI();
+  });
+
+  detectBtn.addEventListener('click', function(){
+    if (s2.step !== 3) return;
+    s2.step = 4;
+    renderTube();
+    updateS2UI();
+  });
+
+  // 注册环节2拖拽
+  document.querySelectorAll('.phage-source').forEach(function(el){
+    makeDraggable(el, function(){
+      return {phage: el.dataset.phage};
+    });
+  });
+
+  // 试管高亮
+  const tubeZone = document.getElementById('tubeZone');
+  tubeZone.addEventListener('dragover', function(e){ e.preventDefault(); });
+  tubeZone.addEventListener('pointerenter', function(){
+    if (dragState) tubeZone.classList.add('drag-over');
+  });
+  tubeZone.addEventListener('pointerleave', function(){
+    tubeZone.classList.remove('drag-over');
+  });
+
+  // 重置环节2
+  document.getElementById('resetStage2').addEventListener('click', function(){
+    s2.step = 0;
+    s2.phageType = null;
+    renderTube();
+    updateS2UI();
+  });
+
+  renderTube();
+  updateS2UI();
+
+  // ============================================================
+  // 4. 选项卡切换
+  // ============================================================
+  document.querySelectorAll('.stage-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.stage-tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.stage-panel').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('stage' + tab.dataset.stage).classList.add('active');
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
